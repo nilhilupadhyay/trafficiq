@@ -1,0 +1,14 @@
+# TrafficIQ – Python dependencies
+# Install: pip install -r requirements.txt
+
+flask==3.0.3
+flask-sqlalchemy==3.1.1
+opencv-python-headless==4.9.0.80   # headless = no GUI dep (server-safe)
+ultralytics==8.4.33
+easyocr==1.7.1
+numpy==1.26.4
+torch>=2.2.0
+torchvision>=0.17.0
+pillow>=10.0.0
+scipy>=1.12.0
+gunicorn==22.0.0                   # production WSGI server

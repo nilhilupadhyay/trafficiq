@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrafficIQ — Alert History</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #080c10; --surface: #0d1420; --surface2: #111926;
+  --border: #1e2d42; --accent: #00e5ff; --accent2: #ff3b5c; --accent3: #39ff7a;
+  --text: #c8d8e8; --text-dim: #5a7a96;
+  --mono: 'Space Mono', monospace; --display: 'Syne', sans-serif;
+  --glow: 0 0 18px rgba(0,229,255,.35);
+}
+
+body { font-family: var(--display); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+body::before {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 999;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.05) 2px, rgba(0,0,0,.05) 4px);
+}
+
+header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 2rem; height: 60px;
+  background: rgba(13,20,32,.92);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 200;
+}
+.logo { display: flex; align-items: center; gap: .75rem; font-size: 1.1rem; font-weight: 800; letter-spacing: .08em; color: #fff; }
+.logo-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: var(--glow); animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:.5} }
+
+.back-link {
+  font-family: var(--mono); font-size: .65rem; color: var(--accent);
+  text-decoration: none; letter-spacing: .1em;
+  border: 1px solid rgba(0,229,255,.3);
+  padding: .3rem .75rem; border-radius: 4px;
+  transition: all .2s;
+}
+.back-link:hover { background: rgba(0,229,255,.08); }
+
+main { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+.page-title {
+  font-size: 1.6rem; font-weight: 800; letter-spacing: .04em;
+  margin-bottom: .4rem; color: #fff;
+}
+.page-sub {
+  font-family: var(--mono); font-size: .7rem; color: var(--text-dim);
+  letter-spacing: .1em; margin-bottom: 2rem;
+}
+
+/* Filters */
+.filter-bar {
+  display: flex; gap: .75rem; align-items: center;
+  margin-bottom: 1.5rem; flex-wrap: wrap;
+}
+.filter-input {
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text); font-family: var(--mono); font-size: .7rem;
+  padding: .5rem .8rem; border-radius: 5px; outline: none;
+  letter-spacing: .06em; transition: border-color .2s;
+}
+.filter-input:focus { border-color: var(--accent); }
+.filter-input::placeholder { color: var(--text-dim); }
+
+/* Table */
+.table-wrap {
+  border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+}
+table { width: 100%; border-collapse: collapse; }
+thead tr {
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+th {
+  font-family: var(--mono); font-size: .6rem; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--text-dim);
+  padding: .75rem 1rem; text-align: left; font-weight: 400;
+}
+tbody tr {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  transition: background .15s;
+  animation: rowIn .4s ease both;
+}
+tbody tr:nth-child(even) { background: var(--surface2); }
+tbody tr:hover { background: #162030; }
+@keyframes rowIn { from{opacity:0;transform:translateX(-6px)} to{opacity:1;transform:translateX(0)} }
+
+td {
+  font-family: var(--mono); font-size: .65rem; color: var(--text);
+  padding: .7rem 1rem; letter-spacing: .04em;
+}
+.td-plate {
+  display: inline-block;
+  padding: .15rem .5rem; border-radius: 3px;
+  background: rgba(0,229,255,.1); border: 1px solid rgba(0,229,255,.25);
+  color: var(--accent); font-weight: 700; letter-spacing: .1em;
+}
+.td-event {
+  display: inline-flex; align-items: center; gap: .3rem;
+  padding: .15rem .5rem; border-radius: 3px;
+  background: rgba(255,59,92,.1); border: 1px solid rgba(255,59,92,.25);
+  color: var(--accent2); font-size: .6rem;
+}
+.empty-row td {
+  text-align: center; color: var(--text-dim); padding: 2.5rem;
+  font-size: .7rem; letter-spacing: .1em;
+}
+
+/* Pagination */
+.pagination {
+  display: flex; align-items: center; justify-content: center;
+  gap: .5rem; margin-top: 1.5rem;
+}
+.page-btn {
+  font-family: var(--mono); font-size: .65rem;
+  padding: .4rem .8rem; border-radius: 4px; letter-spacing: .08em;
+  text-decoration: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  transition: all .2s;
+}
+.page-btn:hover { border-color: var(--accent); color: var(--accent); }
+.page-btn.active { background: rgba(0,229,255,.12); border-color: var(--accent); color: var(--accent); }
+.page-btn.disabled { opacity: .3; pointer-events: none; }
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    TRAFFIC<span style="color:var(--accent)">IQ</span>
+  </div>
+  <a href="/" class="back-link">← LIVE MONITOR</a>
+</header>
+
+<main>
+  <div class="page-title">Alert History</div>
+  <div class="page-sub">ALL RECORDED INCIDENTS · SORTED BY TIMESTAMP</div>
+
+  <div class="filter-bar">
+    <input class="filter-input" id="filterInput" type="text"
+           placeholder="Filter by plate, camera, event …"
+           oninput="filterTable(this.value)">
+  </div>
+
+  <div class="table-wrap">
+    <table id="historyTable">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Timestamp</th>
+          <th>Camera</th>
+          <th>Event</th>
+          <th>Vehicle ID</th>
+          <th>Plate</th>
+          <th>Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for alert in pagination.items %}
+        <tr>
+          <td style="color:var(--text-dim)">{{ alert.id }}</td>
+          <td>{{ alert.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+          <td>{{ alert.camera_name }}</td>
+          <td><span class="td-event">● {{ alert.event_type }}</span></td>
+          <td>{{ alert.vehicle_id }}</td>
+          <td>
+            {% if alert.plate and alert.plate != 'N/A' %}
+              <span class="td-plate">{{ alert.plate }}</span>
+            {% else %}
+              <span style="color:var(--text-dim)">—</span>
+            {% endif %}
+          </td>
+          <td style="max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"
+              title="{{ alert.details }}">{{ alert.details }}</td>
+        </tr>
+        {% else %}
+        <tr class="empty-row"><td colspan="7">NO ALERTS RECORDED YET</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  {% if pagination.pages > 1 %}
+  <div class="pagination">
+    <a href="?page={{ pagination.prev_num }}"
+       class="page-btn {% if not pagination.has_prev %}disabled{% endif %}">← PREV</a>
+    {% for p in pagination.iter_pages(left_edge=2, right_edge=2, left_current=2, right_current=2) %}
+      {% if p %}
+        <a href="?page={{ p }}"
+           class="page-btn {% if p == pagination.page %}active{% endif %}">{{ p }}</a>
+      {% else %}
+        <span class="page-btn" style="opacity:.3">…</span>
+      {% endif %}
+    {% endfor %}
+    <a href="?page={{ pagination.next_num }}"
+       class="page-btn {% if not pagination.has_next %}disabled{% endif %}">NEXT →</a>
+  </div>
+  {% endif %}
+</main>
+
+<script>
+function filterTable(q) {
+  q = q.toLowerCase();
+  document.querySelectorAll('#historyTable tbody tr:not(.empty-row)').forEach(row => {
+    row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+</script>
+</body>
+</html>

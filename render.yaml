@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: trafficiq
+    runtime: python
+    plan: free
+    region: oregon
+
+    # Build
+    buildCommand: |
+      pip install --upgrade pip
+      pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+      pip install -r requirements.txt
+      python -c "from ultralytics import YOLO; YOLO('yolov8n.pt')"
+
+    # Start
+    startCommand: gunicorn app:app --workers=1 --threads=8 --bind=0.0.0.0:$PORT --timeout=120
+
+    # Environment variables
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: PYTHONUNBUFFERED
+        value: "1"
+
+    # Disk — persists the SQLite DB between deploys
+    disk:
+      name: trafficiq-data
+      mountPath: /opt/render/project/src/instance
+      sizeGB: 1
