@@ -26,10 +26,9 @@ except ImportError:
 # ── Configuration ──────────────────────────────────────────────────────────────
 
 CAMERAS = [
-    {"id": 0, "name": "Tunnel Entrance",   "source": "videos/stock.mp4"},
-    {"id": 1, "name": "Flyover Exit",      "source": "videos/british_highway_traffic.mp4"},
-    {"id": 2, "name": "India Highway",     "source": "videos/"
-    "15 minutes of heavy traffic noise in India _ 14-08-2022.mp4"},
+    
+    {"id": 0, "name": "Flyover Exit",      "source": "videos/british_highway_traffic.mp4"},
+    {"id": 1, "name": "India Highway",     "source": "videos/15 minutes of heavy traffic noise in India _ 14-08-2022.mp4"},
 ]
 
 MODEL_PATH             = "yolov8n.pt"
